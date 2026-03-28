@@ -8,7 +8,7 @@ import cv2
 import sqlite3
 from datetime import datetime
 
-TOKEN = "8525651941:AAFHVd89ZP6jL6VdytMXMbreVoO86p93IEs"
+TOKEN = "#token"
 
 # 🔐 PIN SYSTEM
 PIN, AUTHORIZED = range(2)
