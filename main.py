@@ -7,8 +7,9 @@ from pyzbar.pyzbar import decode
 from PIL import Image
 import sqlite3
 from datetime import datetime
+import os
 
-TOKEN = "#token"
+TOKEN = os.getenv("TOKEN")
 
 # 🔐 PIN SYSTEM
 PIN, AUTHORIZED = range(2)
@@ -40,7 +41,6 @@ CREATE TABLE IF NOT EXISTS sales (
 """)
 conn.commit()
 
-reader = BarCodeReader()
 
 # 🔹 STATES for Add Product
 BARCODE, NAME, PRICE = range(3)
@@ -315,7 +315,6 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("Barcode topilmadi ❌")
 
-    context.user_data["scan_mode"] = False
     context.user_data["scan_mode"] = False
 # 🔹 Conversation handler for add & PIN
 conv_handler_pin = ConversationHandler(
