@@ -3,7 +3,8 @@ from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler, filters,
     ContextTypes, ConversationHandler
 )
-from pyzxing import BarCodeReader
+from pyzbar.pyzbar import decode
+from PIL import Image
 import sqlite3
 from datetime import datetime
 
