@@ -278,6 +278,9 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 from pyzbar.pyzbar import decode
 from PIL import Image
 
+from pyzbar.pyzbar import decode
+from PIL import Image
+
 @authorized
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.user_data.get("scan_mode"):
@@ -312,6 +315,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("Barcode topilmadi ❌")
 
+    context.user_data["scan_mode"] = False
     context.user_data["scan_mode"] = False
 # 🔹 Conversation handler for add & PIN
 conv_handler_pin = ConversationHandler(
