@@ -275,30 +275,44 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"Topilmadi ❌\nCode: {code}")
         context.user_data["scan_mode"] = False
 
+from pyzbar.pyzbar import decode
+from PIL import Image
+
 @authorized
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.user_data.get("scan_mode"):
         return
+
     photo = await update.message.photo[-1].get_file()
     file_path = f"scan_{update.message.message_id}.jpg"
     await photo.download_to_drive(file_path)
-    result = reader.decode(file_path)
-    if result:
-        code = result.parsed
+
+    img = Image.open(file_path)
+    barcodes = decode(img)
+
+    if barcodes:
+        code = barcodes[0].data.decode("utf-8")
+
         cursor.execute("SELECT id, name, price FROM products WHERE barcode=?", (code,))
         row = cursor.fetchone()
+
         if row:
             pid, name, price = row
             today_str = datetime.now().strftime("%Y-%m-%d")
-            cursor.execute("INSERT INTO sales (product_id, price, date) VALUES (?, ?, ?)", (pid, price, today_str))
+
+            cursor.execute(
+                "INSERT INTO sales (product_id, price, date) VALUES (?, ?, ?)",
+                (pid, price, today_str)
+            )
             conn.commit()
+
             await update.message.reply_text(f"{name} sotildi ✅\nNarx: {price}")
         else:
             await update.message.reply_text(f"Topilmadi ❌\nCode: {code}")
     else:
         await update.message.reply_text("Barcode topilmadi ❌")
-    context.user_data["scan_mode"] = False
 
+    context.user_data["scan_mode"] = False
 # 🔹 Conversation handler for add & PIN
 conv_handler_pin = ConversationHandler(
     entry_points=[CommandHandler("start", start)],
