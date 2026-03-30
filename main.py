@@ -3,8 +3,7 @@ from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler, filters,
     ContextTypes, ConversationHandler
 )
-from pyzbar.pyzbar import decode
-from PIL import Image
+import requests
 import sqlite3
 from datetime import datetime
 import os
@@ -290,12 +289,19 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     file_path = f"scan_{update.message.message_id}.jpg"
     await photo.download_to_drive(file_path)
 
-    img = Image.open(file_path)
-    barcodes = decode(img)
+    # 🔥 API orqali barcode o‘qish
+    url = "https://api.qrserver.com/v1/read-qr-code/"
+    with open(file_path, "rb") as f:
+        response = requests.post(url, files={"file": f})
 
-    if barcodes:
-        code = barcodes[0].data.decode("utf-8")
+    result = response.json()
 
+    try:
+        code = result[0]["symbol"][0]["data"]
+    except:
+        code = None
+
+    if code:
         cursor.execute("SELECT id, name, price FROM products WHERE barcode=?", (code,))
         row = cursor.fetchone()
 
@@ -316,6 +322,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Barcode topilmadi ❌")
 
     context.user_data["scan_mode"] = False
+    
 # 🔹 Conversation handler for add & PIN
 conv_handler_pin = ConversationHandler(
     entry_points=[CommandHandler("start", start)],
