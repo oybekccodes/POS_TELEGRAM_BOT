@@ -306,8 +306,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         conn.close()
         context.user_data["scan_mode"] = False
 
-from pyzbar.pyzbar import decode
-from PIL import Image
 
 @authorized
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
